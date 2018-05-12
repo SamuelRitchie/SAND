@@ -2,14 +2,14 @@ import pandas as pd
 import urllib
 import bs4
 import logging.config
+from tqdm import tqdm
+tqdm.pandas()
 logger = logging.getLogger(__name__)
 
 
 def scrapping_jazz_metadata(url):
-    print('fetching metadata for url%s' % url)
     try:
         request_text = urllib.request.urlopen(url).read()
-
         page = bs4.BeautifulSoup(request_text, "lxml")
 
         name = page.find('title').getText().split('About: ')[1]
@@ -75,8 +75,11 @@ def scrapping_jazz_metadata(url):
 
 
 def annotate(csv="data/triples.txt"):
+    logger.info('fetching metadata...')
     data = pd.read_csv(csv, sep=" ", header=None, names=['Artiste1', 'Lien', 'Artiste2', '.'])
     unic_jazzmen = pd.DataFrame(data.Artiste1.append(data.Artiste2).drop_duplicates(), columns=['artist_url'])
-    unic_jazzmen['metadata'] = unic_jazzmen.artist_url.apply(scrapping_jazz_metadata)
-    unic_jazzmen_dataframe = pd.concat([unic_jazzmen.artist_url,unic_jazzmen.metadata.apply(pd.Series)],axis=1).reset_index(drop=True)
-    unic_jazzmen_dataframe.to_csv('data/metadata_dataframe.csv', index=False)
+    unic_jazzmen['metadata'] = unic_jazzmen.artist_url.progress_apply(scrapping_jazz_metadata)
+    unic_jazzmen_dataframe = pd.concat([unic_jazzmen.artist_url, unic_jazzmen.metadata.apply(pd.Series)],axis=1).\
+        reset_index(drop=True)
+
+    return unic_jazzmen_dataframe
