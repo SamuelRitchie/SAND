@@ -18,6 +18,8 @@ click = "*"
 lxml = "*"
 tqdm = "*"
 pyyaml = "*"
+ipykernel = "*"
+matplotlib = "*"
 
 
 [requires]
