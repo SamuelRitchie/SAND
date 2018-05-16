@@ -44,14 +44,18 @@ def scrapping_jazz_metadata(url):
         else:
             genre = None
 
+        instrument = []
         if page.findAll('a', {'rel': 'dbo:instrument'}):
-            instrument = [p.getText().split('dbr:')[1] for p in page.findAll('a', {'rel': 'dbo:instrument'})]
-        elif page.findAll('span', {'property': 'dbp:instrument'}):
-            instrument = [p.getText() for p in page.findAll('span', {'property': 'dbp:instrument'})]
-        elif page.findAll('a', {'rel': 'ns1:hypernym'}):
-            instrument = [p.getText().split('dbr:')[1] for p in page.findAll('a', {'rel': 'ns1:hypernym'})]
-        else:
-            instrument = None
+            instrument.extend([p.getText().split('dbr:')[1] for p in page.findAll('a', {'rel': 'dbo:instrument'})])
+        if page.findAll('span', {'property': 'dbp:instrument'}):
+            instrument.extend([p.getText() for p in page.findAll('span', {'property': 'dbp:instrument'})])
+        if page.findAll('a', {'rel': 'ns1:hypernym'}):
+            instrument.extend([p.getText().split('dbr:')[1] for p in page.findAll('a', {'rel': 'ns1:hypernym'})])
+        if page.find('span', {'property': 'dbp:occupation'}) is not None:
+            instrument.append(page.find('span', {'property': 'dbp:occupation'}).getText())
+
+        if 'Musician' in instrument:
+            instrument.remove('Musician')
 
         if page.findAll('a', {'rel': 'dbo:associatedMusicalArtist'}):
             associated_artists = [p.getText().split('dbr:')[1] for p in
