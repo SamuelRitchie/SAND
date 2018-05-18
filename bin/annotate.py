@@ -4,7 +4,7 @@ import click
 import yaml
 import logging
 import logging.config
-from scrapping import annotate
+from python_scripts.scrapping import annotate
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
